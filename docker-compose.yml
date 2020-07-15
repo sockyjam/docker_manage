@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8090:8080"
+    stop_grace_period: 1m30s
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  portainer:
+    image: portainer/portainer
+    ports:
+      - "8091:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "${PWD}/portainer_data:/data"
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
